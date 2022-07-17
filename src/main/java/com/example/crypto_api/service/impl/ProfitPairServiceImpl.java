@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -92,6 +94,7 @@ public class ProfitPairServiceImpl implements ProfitPairService {
                                     profitPair.get().setFromExchangePairPrice(firstPair.get("usdLast").asDouble());
                                     profitPair.get().setToExchangePairPrice(secondPair.get("usdLast").asDouble());
                                     profitPair.get().setProfit("+" + secondStep + "%");
+                                    profitPair.get().setLastUpdatedTime(LocalDateTime.now());
                                     profitPairRepository.save(profitPair.get());
                                 } else if (profitPair.isEmpty()) {
                                     profitPairRepository.save(ProfitPair.builder()
@@ -102,6 +105,8 @@ public class ProfitPairServiceImpl implements ProfitPairService {
                                             .toExchangePair(secondPair.get("symbol").asText())
                                             .toExchangePairPrice(secondPair.get("usdLast").asDouble())
                                             .profit("+" + secondStep + "%")
+                                            .createdTime(LocalDateTime.now())
+                                            .lastUpdatedTime(LocalDateTime.now())
                                             .build());
                                 }
 
@@ -125,5 +130,19 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     @Override
     public List<ProfitPair> fetchData(Integer pageId) {
         return profitPairRepository.findAll(PageRequest.of(pageId, 500)).getContent();
+    }
+
+    @Async
+    @Scheduled(fixedRate = 1000 * 60 * 5)
+    @Override
+    public void removeUnusedPairs() {
+        List<ProfitPair> profitPairs = profitPairRepository.findAll();
+        for (ProfitPair profitPair : profitPairs) {
+            LocalDateTime now = LocalDateTime.now();
+            long minutes = profitPair.getLastUpdatedTime().until(now, ChronoUnit.MINUTES);
+            if (minutes <= -5) {
+                profitPairRepository.delete(profitPair);
+            }
+        }
     }
 }

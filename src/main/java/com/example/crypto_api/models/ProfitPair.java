@@ -5,10 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -33,4 +31,9 @@ public class ProfitPair {
     private Double toExchangePairPrice;
 
     private String profit;
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
+
+    @Column(name = "last_updated_time")
+    private LocalDateTime lastUpdatedTime;
 }

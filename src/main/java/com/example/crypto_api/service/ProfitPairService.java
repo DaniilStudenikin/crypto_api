@@ -9,4 +9,6 @@ public interface ProfitPairService {
 
 
     List<ProfitPair> fetchData(Integer pageId);
+
+    void removeUnusedPairs();
 }
