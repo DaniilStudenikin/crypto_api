@@ -39,6 +39,12 @@ public class CurrencyServiceImpl implements CurrencyService {
     @Value("${cryptorank.api-key}")
     private String apiKey;
 
+    /*
+     * Код ошибки 429 Too Many Requests говорит о том,
+     * что пользователь отправлял чересчур много запросов за единицу времени.
+     * Возвращаемый сервером ответ содержит пояснение, а также может включать заголовок Retry-After.
+     * Этот заголовок указывает на время, которое необходимо подождать, прежде чем повторять запрос.
+     * */
     @Async
     @Scheduled(fixedDelay = 1000 * 60 * 60)
     @Override
