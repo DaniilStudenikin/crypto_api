@@ -41,7 +41,7 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     @Autowired
     private ExchangeRepository exchangeRepository;
 
-    @Scheduled(fixedRate = 1000 * 5, initialDelay = 1000 * 3)
+    @Scheduled(fixedRate = 1000 * 10, initialDelay = 1000 * 3)
     @Async
     @Override
     public void scanPairs() {
@@ -62,6 +62,9 @@ public class ProfitPairServiceImpl implements ProfitPairService {
                         }
                         try {
                             firstPrice = firstPair.get("usdLast").asDouble();
+                            if (firstPrice == 0) {
+                                return;
+                            }
                         } catch (NullPointerException e) {
                             return;
                         }
@@ -77,6 +80,9 @@ public class ProfitPairServiceImpl implements ProfitPairService {
                             }
                             try {
                                 secondPrice = secondPair.get("usdLast").asDouble();
+                                if (secondPrice == 0) {
+                                    return;
+                                }
                             } catch (NullPointerException e) {
                                 return;
                             }
@@ -97,6 +103,8 @@ public class ProfitPairServiceImpl implements ProfitPairService {
                                     profitPair.get().setLastUpdatedTime(LocalDateTime.now());
                                     profitPairRepository.save(profitPair.get());
                                 } else if (profitPair.isEmpty()) {
+                                    if (firstPair.get("usdLast").asInt() == 0)
+                                        return;
                                     profitPairRepository.save(ProfitPair.builder()
                                             .fromExchange(firstPair.get("exchangeName").asText())
                                             .fromExchangePair(firstPair.get("symbol").asText())
@@ -140,7 +148,7 @@ public class ProfitPairServiceImpl implements ProfitPairService {
         for (ProfitPair profitPair : profitPairs) {
             LocalDateTime now = LocalDateTime.now();
             long minutes = profitPair.getLastUpdatedTime().until(now, ChronoUnit.MINUTES);
-            if (minutes <= -5) {
+            if ((now.getMinute() - minutes) <= -5) {
                 profitPairRepository.delete(profitPair);
             }
         }
