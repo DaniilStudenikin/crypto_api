@@ -41,7 +41,7 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     @Autowired
     private ExchangeRepository exchangeRepository;
 
-    @Scheduled(fixedRate = 1000 * 10, initialDelay = 1000 * 3)
+    @Scheduled(fixedRate = 1000 * 60, initialDelay = 1000 * 3)
     @Async
     @Override
     public void scanPairs() {
@@ -141,14 +141,14 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     }
 
     @Async
-    @Scheduled(fixedRate = 1000 * 60 * 2)
+    @Scheduled(fixedRate = 1000 * 60 * 3)
     @Override
     public void removeUnusedPairs() {
         List<ProfitPair> profitPairs = profitPairRepository.findAll();
         for (ProfitPair profitPair : profitPairs) {
             LocalDateTime now = LocalDateTime.now();
             long minutes = profitPair.getLastUpdatedTime().until(now, ChronoUnit.MINUTES);
-            if (minutes >= 4) {
+            if (minutes >= 3) {
                 profitPairRepository.deleteById(profitPair.getId());
             }
         }
