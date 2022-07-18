@@ -41,7 +41,7 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     @Autowired
     private ExchangeRepository exchangeRepository;
 
-    @Scheduled(fixedRate = 1000 * 60, initialDelay = 1000 * 3)
+    @Scheduled(fixedRate = 1000 * 30, initialDelay = 1000 * 10)
     @Async
     @Override
     public void scanPairs() {
