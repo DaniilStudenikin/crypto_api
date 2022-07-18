@@ -141,15 +141,15 @@ public class ProfitPairServiceImpl implements ProfitPairService {
     }
 
     @Async
-    @Scheduled(fixedRate = 1000 * 60 * 5)
+    @Scheduled(fixedRate = 1000 * 60 * 2)
     @Override
     public void removeUnusedPairs() {
         List<ProfitPair> profitPairs = profitPairRepository.findAll();
         for (ProfitPair profitPair : profitPairs) {
             LocalDateTime now = LocalDateTime.now();
             long minutes = profitPair.getLastUpdatedTime().until(now, ChronoUnit.MINUTES);
-            if ((now.getMinute() - minutes) <= -5) {
-                profitPairRepository.delete(profitPair);
+            if (minutes >= 4) {
+                profitPairRepository.deleteById(profitPair.getId());
             }
         }
     }
